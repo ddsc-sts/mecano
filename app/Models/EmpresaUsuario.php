@@ -6,8 +6,7 @@ use App\Core\Model;
 
 final class EmpresaUsuario extends Model
 {
-    // TODO: definir $table e $fillable
-    protected static string $table = '';
-    protected static array $fillable = [];
+    protected static string $table = 'empresa_usuario';
+    protected static array $fillable = ['empresa_id', 'usuario_id', 'papel', 'ativo'];
     protected static bool $tenant = false;   // tabela global
 }
