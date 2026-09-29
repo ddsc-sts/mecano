@@ -1,0 +1,66 @@
+-- Mecano v1.6 - núcleo (UMA oficina). MySQL 8 / InnoDB / utf8mb4
+SET NAMES utf8mb4;
+
+CREATE TABLE oficina (                       -- sempre 1 linha (id = 1)
+  id TINYINT UNSIGNED PRIMARY KEY DEFAULT 1,
+  nome VARCHAR(150) NOT NULL,
+  documento VARCHAR(20) NULL,
+  email VARCHAR(150) NULL,
+  telefone VARCHAR(30) NULL,
+  endereco VARCHAR(255) NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT chk_oficina_unica CHECK (id = 1)
+) ENGINE=InnoDB;
+
+CREATE TABLE usuarios (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(150) NOT NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  senha_hash VARCHAR(255) NOT NULL,
+  papel ENUM('admin','gerente','mecanico','atendente','cliente') NOT NULL DEFAULT 'atendente',
+  ativo TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE clientes (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  usuario_id BIGINT UNSIGNED NULL,           -- acesso ao portal (papel 'cliente')
+  nome VARCHAR(150) NOT NULL,
+  documento VARCHAR(20) NULL,
+  telefone VARCHAR(30) NULL,
+  email VARCHAR(150) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP NULL,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE veiculos (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  cliente_id BIGINT UNSIGNED NOT NULL,
+  placa CHAR(7) NOT NULL UNIQUE,
+  marca VARCHAR(60) NULL,
+  modelo VARCHAR(80) NULL,
+  ano SMALLINT NULL,
+  cor VARCHAR(30) NULL,
+  quilometragem INT UNSIGNED NULL,
+  modelo_3d_id BIGINT UNSIGNED NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP NULL,
+  FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE audit_logs (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  usuario_id BIGINT UNSIGNED NULL,
+  acao VARCHAR(60) NOT NULL,
+  entidade VARCHAR(60) NULL,
+  entidade_id BIGINT UNSIGNED NULL,
+  detalhes JSON NULL,
+  ip VARCHAR(45) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_audit_data (created_at)
+) ENGINE=InnoDB;
